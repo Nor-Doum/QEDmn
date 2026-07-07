@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Welcome</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, sans-serif;
+    background: #f4f4f7;
+    margin: 0;
+    min-height: 100vh;
+  }
+  header {
+    background: #fff;
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  header h1 { font-size: 18px; margin: 0; }
+  #logoutBtn {
+    padding: 8px 16px;
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  #logoutBtn:hover { background: #dc2626; }
+  main {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+  #checking {
+    text-align: center;
+    color: #666;
+    margin-top: 100px;
+  }
+  .welcome-card {
+    background: #fff;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .welcome-card h2 {
+    font-size: 24px;
+    margin: 0 0 10px;
+    color: #1d4ed8;
+  }
+  .welcome-card p {
+    color: #555;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 ratio */
+    height: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  .pending-card {
+    background: #fff;
+    max-width: 480px;
+    margin: 100px auto 0;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  .pending-card h2 { font-size: 19px; margin-bottom: 10px; }
+  .pending-card p { color: #555; font-size: 14px; line-height: 1.5; }
+  .pending-card a { color: #2563eb; }
+</style>
+</head>
+<body>
+
+<div id="checking">Checking your account...</div>
+
+<div id="pending" style="display:none;">
+  <div class="pending-card">
+    <h2>Payment not confirmed yet</h2>
+    <p>
+      We don't see a confirmed payment for your account yet.
+      If you already paid via BaridiMob or in person, please allow a little time for confirmation,
+      or make sure you've submitted the <a href="booking.html">booking form</a>.
+    </p>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+  <header>
+    <h1>Welcome</h1>
+    <a href="index.html#courses" style="padding:8px 16px; background:#2563eb; color:#fff; border-radius:8px; font-size:14px; text-decoration:none;">
+      Go to Courses
+    </a>
+  </header>
+  <main>
+    <div class="welcome-card">
+      <h2>Welcome, and congratulations on your BAC! 🎉</h2>
+      <p>
+        We're so glad to have you with us. Here's a short podcast with some advice
+        to help you as you start this next chapter.
+      </p>
+    </div>
+
+    <div class="video-wrapper">
+      <iframe
+        src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+        title="Welcome Podcast"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { auth } from "./firebase-config.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+  const APPROVED_LIST_URL = "https://api.npoint.io/de5809f5bd69832c87ff";
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "access.html";
+      return;
+    }
+
+    try {
+      const response = await fetch(APPROVED_LIST_URL + "?t=" + Date.now(), { cache: "no-store" });
+      const data = await response.json();
+      const approvedEmails = data.approvedEmails.map(e => e.toLowerCase());
+      
+      document.getElementById("checking").style.display = "none";
+
+      if (approvedEmails.includes(user.email.toLowerCase())) {
+        document.getElementById("app").style.display = "block";
+      } else {
+        document.getElementById("pending").style.display = "block";
+      }
+    } catch (error) {
+      document.getElementById("checking").textContent =
+        "Couldn't check your account status. Please refresh the page.";
+    }
+  });
+</script>
+
+</body>
+</html>

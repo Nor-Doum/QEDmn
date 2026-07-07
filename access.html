@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Access Your Lessons</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, sans-serif;
+    background: #f4f4f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+  .card {
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 360px;
+  }
+  h1 { font-size: 22px; margin-bottom: 6px; text-align: center; }
+  p.subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 24px; }
+  input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  button:hover { background: #1d4ed8; }
+  button:disabled { background: #93c5fd; cursor: default; }
+  #message { margin-top: 14px; text-align: center; font-size: 14px; }
+  .error { color: #b91c1c; }
+  .info { color: #555; }
+  p.footer { text-align: center; margin-top: 16px; font-size: 13px; color: #888; }
+  a { color: #2563eb; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Access Your Lessons</h1>
+  <p class="subtitle">Enter your email and password. New here? Just pick a password — your account is created automatically.</p>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password (6+ characters)">
+  <button id="enterBtn">Enter</button>
+  <p id="message"></p>
+  <p class="footer">Haven't booked a session yet? <a href="booking.html">Book here</a></p>
+</div>
+
+<script type="module">
+  import { auth } from "./firebase-config.js";
+  import {
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword
+  } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+  const messageEl = document.getElementById("message");
+  const enterBtn = document.getElementById("enterBtn");
+
+  enterBtn.addEventListener("click", async () => {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!email || !password) {
+      messageEl.textContent = "Please fill in both fields.";
+      messageEl.className = "error";
+      return;
+    }
+    if (password.length < 6) {
+      messageEl.textContent = "Password must be at least 6 characters.";
+      messageEl.className = "error";
+      return;
+    }
+
+    enterBtn.disabled = true;
+    messageEl.textContent = "Checking...";
+    messageEl.className = "info";
+
+    try {
+      // Try logging in first (existing account)
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.href = "welcome.html";
+    } catch (loginError) {
+      if (loginError.code === "auth/user-not-found" || loginError.code === "auth/invalid-credential") {
+        // No account yet with this email — create one
+        try {
+          await createUserWithEmailAndPassword(auth, email, password);
+          window.location.href = "welcome.html";
+        } catch (signupError) {
+          messageEl.textContent = signupError.message;
+          messageEl.className = "error";
+          enterBtn.disabled = false;
+        }
+      } else if (loginError.code === "auth/wrong-password") {
+        messageEl.textContent = "Incorrect password for this email.";
+        messageEl.className = "error";
+        enterBtn.disabled = false;
+      } else {
+        messageEl.textContent = loginError.message;
+        messageEl.className = "error";
+        enterBtn.disabled = false;
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
