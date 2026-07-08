@@ -133,7 +133,7 @@ import {
         window.location.href = "welcome.html";
       } else {
         // Logged in fine, but no confirmed payment yet
-        messageEl.textContent = "We don't see a confirmed payment for this email yet. If you already paid, please allow a little time for confirmation.";
+        messageEl.textContent = messageEl.textContent = "This account didn't sign up yet. Sign up and try again.";
         messageEl.className = "error";
         enterBtn.disabled = false;
       }
