@@ -35,7 +35,7 @@ body ::-webkit-scrollbar-thumb{
     border: none;
     transition: 0.4 ease-in-out;
     text-decoration: none;
-    
+    display: inline-block;
 }
 .commonBtn:hover{
     background: linear-gradient(349deg , #9383f5, #b1a5f8);
@@ -50,6 +50,32 @@ body ::-webkit-scrollbar-thumb{
     margin:auto ;
     padding: 20px;
 }
+.commonBtnLog{
+    background: whitesmoke;
+    border-radius: 20px;
+    box-shadow:0 4px 8px  rgba(234, 223, 246, 0.936);
+    padding: 15px 30px;
+    font-size: 16px;
+    filter: drop-shadow(2px 5px 6px #dad5f6);
+    border-radius:23px ;
+    color:var(--primary-color);
+    letter-spacing: 1px;
+    font-weight: 600;
+    /* filter: drop-shadow(2px 5px 8px #b1a5f8); */
+    border: none;
+    transition: 0.4 ease-in-out;
+    text-decoration: none;
+    display: inline-block;
+    transform : 0.3s ease-in-out ;
+    box-shadow : 0.3s ease ;
+}
+.commonBtnLog:hover{
+    transform:scale(1.05) ;
+    /* box-shadow: 0 6px 10px rgba(205, 167, 234, 0.815) ; */
+    background: linear-gradient(180deg , #a196ef1f , #9e92f50f);
+    color: white;
+}
+
 #mainHeader.fixed{
     position: fixed;
     top:0;
@@ -72,7 +98,7 @@ nav ul{
     display: flex;
     gap: 20px;
     list-style: none;
-
+    align-items: center;
 }
 .logo h4{
     display: flex;
@@ -369,7 +395,7 @@ small{
     margin-bottom: 15px;
     line-break: 1.6;
 }
-/* certifivates */
+/* certificates */
 
 .marquee-wrapper {
 width: 90%;
@@ -762,7 +788,9 @@ nav ul li{padding: 10px;}
 nav ul.active{display:flex; z-index: 9999;}
 .menu-toggle{display: flex;}
 .hero{flex-direction:column-reverse ; text-align: center;}
+.headingHeroHeading{margin-top: 25px;}
 .headingHeroHeading{font-size: 2rem;}
+
 .course-section{padding: 20px;}
 .stats{flex-direction: column;}
 .circle-container{display: none;}
@@ -777,6 +805,7 @@ nav ul.active{display:flex; z-index: 9999;}
 .priceSection .container{flex-direction: column; gap: 20px;}
 .testimonialSection{padding: 20px;}
 .testimonial{flex: 0 0 calc(100% - 20px);}
+
 }
 @media (max-width: 1024px) {
     .purple-corner{

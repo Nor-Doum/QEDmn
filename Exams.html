@@ -1,9 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Lessons</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exams</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -70,8 +70,8 @@
 
 <div id="pending" style="display:none;">
   <div class="pending-card">
-    <h2>Payment not confirmed yet</h2>
-    <p>
+    <h2 id="pendingTitle">Payment not confirmed yet</h2>
+    <p id="pendingText">
       We don't see a confirmed payment for your account yet.
       If you already paid via BaridiMob or in person, please allow a little time for confirmation,
       or make sure you've submitted the <a href="booking.html">booking form</a>.
@@ -85,7 +85,7 @@
     <button id="logoutBtn">Log Out</button>
   </header>
   <main id="lessonList">
-    <!-- Lessons load here once logged in and approved -->
+    <!-- Exams load here once logged in and approved -->
   </main>
 </div>
 
@@ -93,24 +93,36 @@
   import { auth } from "./firebase-config.js";
   import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
+  // Paste the /exec URL from your Apps Script deployment here
+  const CONTENT_ENDPOINT = "https://script.google.com/macros/s/AKfycbwmdgmmQV6E6XDN5TexCcAA759NviDqz-bwEonFgYyNivlejuW6PMgy1uJtB6bi2NOLBw/exec";
+
+  // Tiers allowed on THIS page
+  const ALLOWED_TIERS = ["premium"];
+
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.href = "access.html";
       return;
     }
 
-    // Check if this user's email is on the approved (paid) list
     try {
-      const response = await fetch("https://api.npoint.io/ab824763a97ebbad7387?t=" + Date.now(), { cache: "no-store" });
+      const url = `${CONTENT_ENDPOINT}?email=${encodeURIComponent(user.email)}&t=${Date.now()}`;
+      const response = await fetch(url, { cache: "no-store" });
       const data = await response.json();
-      const approvedEmails = data.approvedEmails.map(e => e.toLowerCase());
 
       document.getElementById("checking").style.display = "none";
 
-      if (approvedEmails.includes(user.email.toLowerCase())) {
+      if (data.tier && ALLOWED_TIERS.includes(data.tier)) {
         document.getElementById("app").style.display = "block";
         loadLessons();
+      } else if (data.tier) {
+        // Approved (e.g. Basic or Standard), but their plan doesn't include Exams
+        document.getElementById("pendingTitle").textContent = "Not included in your plan";
+        document.getElementById("pendingText").innerHTML =
+          "Exams are available on the Premium plan. Contact me if you'd like to upgrade.";
+        document.getElementById("pending").style.display = "block";
       } else {
+        // No confirmed payment at all
         document.getElementById("pending").style.display = "block";
       }
     } catch (error) {
@@ -126,9 +138,7 @@
 
   function loadLessons() {
     const lessons = [
-      { title: "Lesson 1: Getting Started", description: "Introduction to the basics." },
-      { title: "Lesson 2: Building Blocks", description: "Core concepts explained." },
-      { title: "Lesson 3: Putting It Together", description: "A hands-on walkthrough." }
+      { title: "Exam prep 1", description: "Practice exam material." }
     ];
 
     const list = document.getElementById("lessonList");
